@@ -1,4 +1,4 @@
-module AquiferTests
+module AquiferTest
 
 include("wellfunctions.jl")
 
