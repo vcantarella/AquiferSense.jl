@@ -2,3 +2,9 @@ name = "Delaunay2D"
 uuid = "840dee38-10a7-4521-a25e-37957ca3d2b6"
 authors = ["vcantarella <vcantarella@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+LinearAlgebra = "1.11.0"

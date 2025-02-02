@@ -1,5 +1,5 @@
 module Delaunay2D
-
+using LinearAlgebra
 """
 struct for a Triangle element called 'Triel'
 """
@@ -40,12 +40,59 @@ function containspoint(triel::Triel, point::AbstractVector{<:Real}, point_array:
     end
     return !(has_neg && has_pos), bound
 end
+
+struct Circle
+    center::AbstractVector{<:Real}
+    radius::Real
+    Circle(center::AbstractVector{<:Real}, radius::Real) = new(center, radius)
 end
 
-export Triel, sign_triangle, containspoint
+"""
+Calculate the inscribed circumcircle of a triangle given by a triel element
+"""
+function circumcircle(triel::Triel, point_array::AbstractMatrix{<:Real})
+    triel_coords = point_array[triel.p, :]
+    a, b, c = triel_coords[1, :], triel_coords[2, :], triel_coords[3, :]
+    # side lengths
+    dab = norm(a - b)
+    dbc = norm(b - c)
+    dca = norm(c - a)
+    # half perimeter
+    s = 1//2 * (dab + dbc + dca)
+    # center point
+    q = @. 1/(2s)*(dbc* a + dca * b + dab * c)
+    radius = √((s - dab) * (s - dbc) * (s - dca) / s)
+    return Circle(q, radius)
+end
+
+"""
+Calculate the inscribed circumcircle of a triangle given by three points
+"""
+function circumcircle(a::AbstractVector{<:Real},b::AbstractVector{<:Real},
+    c::AbstractVector{<:Real})
+    # side lengths
+    dab = norm(a - b)
+    dbc = norm(b - c)
+    dca = norm(c - a)
+    # verify the if statement below (chatpgt)
+    if dab + dbc <= dca || dbc + dca <= dab || dca + dab <= dbc
+        error("The three points do not form a triangle")
+    end
+    # half perimeter
+    s = 1//2 * (dab + dbc + dca)
+    # center point
+    q = @. 1/(2s)*(dbc* a + dca * b + dab * c)
+    radius = √((s - dab) * (s - dbc) * (s - dca) / s)
+    return Circle(q, radius)
+end
+
+function incircle(triel::Triel, point::AbstractVector{<:Real}, point_array::AbstractMatrix{<:Real})
+    triel_coords = point_array[triel.p, :]
+    a, b, c = triel_coords[1, :], triel_coords[2, :], triel_coords[3, :]
+    circle = circumcircle(triel, point_array)
+    return norm(point - circle.center) <= circle.radius
+end
+
+export Triel, sign_triangle, containspoint, circumcircle, Circle
 
 end # module Delaunay2D
-
-points = [0 0
-         1 0
-         0 1]
